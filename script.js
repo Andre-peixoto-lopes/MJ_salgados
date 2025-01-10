@@ -126,47 +126,49 @@ addressInput.addEventListener("input", function (event) {
     }
 })
 
-checkoutBtn.addEventListener("click", function(){
-
+checkoutBtn.addEventListener("click", function () {
     const isOpen = checkRestaurantOpen();
-    if(!isOpen){
-  
-      Toastify({
-        text: "Ops o restaurante está fechado!",
-        duration: 3000,
-        close: true,
-        gravity: "top", // `top` or `bottom`
-        position: "right", // `left`, `center` or `right`
-        stopOnFocus: true, // Prevents dismissing of toast on hover
-        style: {
-          background: "#ef4444",
-        },
-      }).showToast();
-  
-      return;
-    }
-  
-    if(cart.length === 0) return;
-    if(addressInput.value === ""){
-      addressWarn.classList.remove("hidden")
-      addressInput.classList.add("border-red-500")
-      return;
+    if (!isOpen) {
+        Toastify({
+            text: "Ops o restaurante está fechado!",
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            stopOnFocus: true,
+            style: {
+                background: "#ef4444",
+            },
+        }).showToast();
+
+        return;
     }
 
-    const cartItems = cart.map((item) => {
-        return (
-            ` ${item.name} Quantidade: (${item.quantity}) Preço: R$${item.price}`
-        )
-    }).join("")
+    if (cart.length === 0) return;
 
-    const message = encodeURIComponent(cartItems)
-    const phone = "+5511997782236"
+    if (addressInput.value === "") {
+        addressWarn.classList.remove("hidden");
+        addressInput.classList.add("border-red-500");
+        return;
+    }
 
-    window.open(`https://wa.me/${phone}?text=${message} Endereço: ${addressInput.value} |`, "_blank")
+    const cartItems = cart
+        .map((item) => ` ${item.name} Quantidade: (${item.quantity}) Preço: R$${item.price.toFixed(2)}`)
+        .join("\n");
+
+    const totalValue = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+    const message = encodeURIComponent(
+        `Itens do Carrinho:\n${cartItems}\n\nValor Total: R$${totalValue.toFixed(2)}\nEndereço: ${addressInput.value}`
+    );
+
+    const phone = "+5511997782236";
+
+    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
 
     cart = [];
     updateCartModal();
-})
+});
 
 function checkRestaurantOpen() {
     const data = new Date();
